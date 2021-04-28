@@ -6,7 +6,7 @@ import sys
 # Config
 WIN_SIZE = WIDTH, HEIGHT = 1280, 960
 CELL_SIZE = 10
-FPS = 30
+FPS = 10
 
 # Colors
 BACKGROUND_COLOR = (100, 100, 100)
@@ -62,10 +62,7 @@ class GameOfLife():
             for cell in row:
                 cell.state = random.randint(0, 1)
 
-    def update_grid(self, new_grid):
-        for row in range(self.grid_rows):
-            for col in range(self.grid_columns):
-                self.grid[row][col].state = new_grid[row][col]
+
 
     def get_cell_state(self, r, c):
         try:
@@ -108,6 +105,11 @@ class GameOfLife():
 
         self.update_grid(new_grid)
         del new_grid
+
+    def update_grid(self, new_grid):
+        for row in range(self.grid_rows):
+            for col in range(self.grid_columns):
+                self.grid[row][col].state = new_grid[row][col]
 
     def handle_events(self):
         for event in pygame.event.get():
