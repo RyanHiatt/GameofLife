@@ -5,7 +5,14 @@ import sys
 
 class GameOfLife():
     def __init__(self, window_width=1280, window_height=720, cell_size=10, fps=30):
+        """
+        :param window_width: default 1280
+        :param window_height: default 720
+        :param cell_size: default 10
+        :param fps: default 30
+        """
         pygame.init()
+        pygame.font.init()
 
         # Screen
         self.window_size = self.width, self.height = window_width, window_height
@@ -20,6 +27,10 @@ class GameOfLife():
         # Colors
         self.background_color = (100, 100, 100)
         self.cell_color = [(50, 50, 50), (245, 120, 66)]
+        self.font_color = (255, 255, 255)
+
+        # Fonts
+        self.my_font = pygame.font.SysFont('Comic Sans', 100)
 
         # Create Cells and Grids
         self.cell_size = cell_size
@@ -48,7 +59,6 @@ class GameOfLife():
             for cell in row:
                 pygame.draw.rect(self.screen, self.cell_color[cell.state],
                                  (cell.x, cell.y, self.cell_size, self.cell_size))
-        pygame.display.flip()
 
     def zero_out_grid(self):
         for row in self.grid:
@@ -61,9 +71,14 @@ class GameOfLife():
                 cell.state = random.randint(0, 1)
 
     def get_cell_state(self, r, c):
+        """
+        :param r: row index
+        :param c: column index
+        :return state of cell:
+        """
         try:
             cell_value = self.grid[r][c].state
-        except:
+        except IndexError:
             cell_value = 0
         return cell_value
 
@@ -80,7 +95,8 @@ class GameOfLife():
         return num_neighbors
 
     def update_generation(self):
-        new_grid = self.transfer_grid.copy()
+        # new_grid = self.transfer_grid.copy()
+        new_grid = [[0 for col in range(self.grid_columns)] for row in range(self.grid_rows)]
 
         for r in range(self.grid_rows):
             for c in range(self.grid_columns):
@@ -103,15 +119,24 @@ class GameOfLife():
         del new_grid
 
     def update_grid(self, new_grid):
+        """
+        :param new_grid:
+        :return:
+        """
         # Update states of all cells
         for row in range(self.grid_rows):
             for col in range(self.grid_columns):
                 self.grid[row][col].state = new_grid[row][col]
 
+    def draw_pause(self):
+        text = self.my_font.render('Paused', True, self.font_color)  # Set word
+        text_rect = text.get_rect()  # Get the word box
+        text_rect.center = (self.width // 2, self.height // 2)  # Center word on screen
+        self.screen.blit(text, text_rect)  # Display word
+
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                print('Key Pressed')
                 # Press r to randomize cells
                 if event.key == pygame.K_r:
                     print('Cells Randomized')
@@ -122,7 +147,14 @@ class GameOfLife():
                     self.zero_out_grid()
                 # Press space to toggle pause
                 elif event.key == pygame.K_SPACE:
-                    self.paused = False if self.paused else True
+                    if not self.paused:  # Pause Game
+                        print('Game Paused')
+                        self.paused = True
+                        # self.draw_pause()
+                    elif self.paused:  # Unpause Game
+                        print('Game Unpause')
+                        self.paused = False
+
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -134,15 +166,24 @@ class GameOfLife():
             if not self.paused:
                 self.update_generation()
                 self.draw_cells()
+            elif self.paused:
+                self.draw_pause()
+            pygame.display.flip()
 
 
 class Cell:
     def __init__(self, x, y, state=0):
+        """
+        :param x: x coordinate
+        :param y: y coordinate
+        :param state: default 0
+        """
         self.state = state
         self.x = x
         self.y = y
 
 
 if __name__ == '__main__':
+
     game = GameOfLife()
     game.run()
